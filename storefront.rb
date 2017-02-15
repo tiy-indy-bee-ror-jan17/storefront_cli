@@ -80,8 +80,11 @@ else
 end
 
 # What item was ordered most often? Grossed the most money?
- most_order = Order.group(:item_id).sum(:quantity).items.first.title
- puts most_order
+ most_order = Order.joins(:item).order("sum_orders_quantity").reverse_order.group(:title).sum("orders.quantity").first
+ puts "#{most_order} was ordered the most."
 
+ gross = Order.joins(:item).order("sum_orders_quantity_all_items_price").reverse_order.group(:title).sum("orders.quantity * items.price").first
+ puts "#{gross} grossed the most money."
+ 
 # What user spent the most?
 # What were the top 3 highest grossing categories?
