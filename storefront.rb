@@ -21,7 +21,7 @@ ActiveRecord::Base.establish_connection(
 
 
 # Your code here
-
+# binding.pry
 
 #Explorer Mode:
 # 1) How many users are there?
@@ -101,12 +101,31 @@ end
     address_to_update.save
 
 # 6) How much would it cost to buy one of each tool?
+#    Native SQL:  select sum(price) from items where category like '%tools%';
+#    sum(price) 46477
+
+total = Item.where("category like '%tools%'").sum("price")
+puts "Tool cost to buy 1 of each: #{total}"
+
+# 7) How many total items did we sell?
+#    select sum(quantity) from orders; sum(quantity) 2125
+
+total = Order.sum("quantity")
+puts "Total quantity sold: #{total}"
 
 
 
+# 8) How much was spent on books
+#     sum(price*quantity)
+#         1081352
+
+book_total = Order.joins("INNER JOIN items on orders.item_id = items.id")
+   .where("items.category like '%book%'")
+   .sum("orders.quantity*items.price")
+  puts "Book Total: #{book_total.inspect}"
 
 
-#binding.pry
+
 
 
 
@@ -114,9 +133,3 @@ end
 
 
 #---------------------------------------------------------------
-#
-#
-# .
-
-# 7) How many total items did we sell?
-# 8) How much was spent on books
