@@ -3,7 +3,8 @@ require 'bundler/setup'
 require 'tty'
 require 'active_record'
 require 'sqlite3'
-require_relative 'password'
+require 'pry'
+require_relative 'models/user'
 
 ActiveRecord::Base.establish_connection(
   :adapter => 'sqlite3',
@@ -11,3 +12,6 @@ ActiveRecord::Base.establish_connection(
 )
 
 # Your code here
+
+puts User.count
+binding.pry
