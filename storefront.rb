@@ -64,15 +64,15 @@ puts "$#{spent} was spent on books."
 ######### Adventure Mode
 
 # What item was ordered most often? Grossed the most money?
- most_order = Order.joins(:item).order("sum_orders_quantity").reverse_order.group(:title).sum("orders.quantity").first.shift
- puts "#{most_order} was ordered the most."
+ most_order = Order.joins(:item).order("sum_orders_quantity desc").group(:title).sum("orders.quantity").first
+ puts "#{most_order.first} was ordered the most."
 
- gross = Order.joins(:item).order("sum_orders_quantity_all_items_price").reverse_order.group(:title).sum("orders.quantity * items.price").first.shift
- puts "#{gross} grossed the most money."
+ gross = Order.joins(:item).order("sum_orders_quantity_all_items_price desc").group(:title).sum("orders.quantity * items.price").first
+ puts "#{gross.first} grossed the most money."
 
 # What user spent the most?
 
-baller = Order.joins(:user, :item).order("sum_orders_quantity_all_items_price").reverse_order.group("users.id").sum("orders.quantity * items.price").first
+baller = Order.joins(:user, :item).order("sum_orders_quantity_all_items_price desc").group("users.id").sum("orders.quantity * items.price").first
 baller_name = User.where("id = ?", baller.first).first
 puts "#{baller_name.first_name} #{baller_name.last_name} spent the most money.\n\n"
 ## There has to be a better way to do this
