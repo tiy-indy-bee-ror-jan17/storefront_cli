@@ -7,6 +7,7 @@ require_relative 'models/user'
 require_relative 'models/order'
 require_relative 'models/item'
 require_relative 'models/address'
+require_relative 'models/review'
 
 ActiveRecord::Base.establish_connection(
   :adapter => 'sqlite3',
@@ -26,7 +27,7 @@ Item.order(price: :desc).first(5).each do |item|
 end
 
 # 3 What's the cheapest book? (Does that change for "category is exactly 'book'" versus "category contains 'book'"?)
-#
+
 item = Item.where(category: "Books").order(price: :asc).first
 puts item.title
 
@@ -109,4 +110,26 @@ top_three = Item.joins(:orders).select("category, sum(items.price * orders.quant
 
 top_three.each do |item|
   puts "#{item.category} grossed $#{item.total}"
+end
+
+# Epic Mode
+
+# 1 Create a command line interface that allows a user to find themselves by email address, pick an item they've ordered and leave a review on it.
+
+if prompt.yes?("Would you like to leave a review?")
+  email = prompt.ask("What is your email?")
+  user_record = User.find_by(email: email)
+  user_id = user_record.id
+  orders_array = user_record.orders
+  item_array = orders_array.map(&:item).uniq
+  item_name = prompt.select("Select item to review", item_array.map(&:title))
+  item_id = item_array.select{ |item| item.title == item_name }.first.id
+  rating = prompt.select("Select a rating:", (1..5).to_a)
+  review = prompt.ask("Enter your review:")
+
+  new_review = Review.create(item_id: item_id, user_id: user_id, rating: rating, content: review)
+
+  puts "Your review for #{item_name} has been submitted. Thank you!"
+else
+  "Goodbye"
 end
