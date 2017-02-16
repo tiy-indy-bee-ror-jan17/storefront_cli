@@ -107,8 +107,19 @@ end
 ###### Epic Mode
 
 # unfinished epic mode prompt
-# if prompt.yes?("Would you like to leave a review?")
-#   find_email = prompt.ask("What is your email used when buying an item?")
-#   User.joins(:orders).where("email = ?", find_email)
-#
-# end
+#Can i put a condition where if the email doesn't exist return something?
+#This only works when I'm returning it as an array/hash
+#I could add a Y/N confirmation loop to check ordered item
+if prompt.yes?("Would you like to leave a review?")
+  find_email = prompt.ask("What is your email used when buying an item?")
+  find_id = User.where("email = ?", find_email).first.id
+  find_item = Order.where("user_id = ?", find_id).first
+  item = Item.where("id = ?", find_item.item_id).first
+  stars = prompt.ask("How many stars (1-5) do you want to rate #{item.title}?")
+  review = prompt.ask("Please write your review of the item.")
+  Review.create(item_id: find_item.item_id, user_id: find_id, stars: stars, review: review)
+  puts "Your review is greatly appreciated!"
+else
+  puts "Have a great day!"
+
+end
