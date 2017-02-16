@@ -1,3 +1,4 @@
 class Order < ActiveRecord::Base
-  has_many :customers
+  belongs_to :users
+  belongs_to :items
 end
