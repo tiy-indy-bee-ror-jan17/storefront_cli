@@ -76,10 +76,20 @@ if prompt.yes?("would you like buy something?")
 end
 
 # What item was ordered most often?
-#Order.group(:item_id).sum(:quantity)
-#binding.pry
+
+list = Order.group(:item_id).sum(:quantity)
+list.each{ |k,v| puts Item.find_by(id: k).title if v==list.values.max}
+
+id = Order.order("sum_quantity").reverse_order.group(:item_id).sum(:quantity).first.first
+puts Item.find_by(id: id).title
 
 #Grossed the most money?
+
+
+
+
+# SELECT items.title, SUM(items.price*orders.quantity) FROM orders JOIN items ON orders.item_id=items.id GROUP BY orders.item_id ORDER BY SUM(items.price * orders.quantity) DESC LIMIT 1;
+
 
 # What user spent the most?
 
