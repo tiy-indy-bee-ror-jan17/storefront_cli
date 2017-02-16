@@ -8,6 +8,7 @@ require_relative 'models/user'
 require_relative 'models/address'
 require_relative 'models/item'
 require_relative 'models/order'
+require_relative 'models/review'
 
 ActiveRecord::Base.establish_connection(
   :adapter => 'sqlite3',
@@ -107,8 +108,5 @@ if prompt.yes?("Would you like to leave a review?")
   item_to_review = prompt.select("choose an item you have ordered to review:", user_orders).first.item
   review = prompt.ask("Please write your review for #{item_to_review.title}: ")
   stars = prompt.select("How many stars?", [1,2,3,4,5])
-  binding.pry
-  #Review.create(item_id: item_to_review.id, user_id: user.id, stars: stars, review: review)
+  Review.create(item_id: item_to_review.id, user_id: user.id, stars: stars, review: review)
 end
-
-"audrey@hartmann.org"
