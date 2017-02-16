@@ -74,7 +74,7 @@ puts "$#{spent} was spent on books."
 baller = Order.joins(:user, :item).order("sum_orders_quantity_all_items_price").reverse_order.group("users.id").sum("orders.quantity * items.price").first
 baller_name = User.where("id = ?", baller.first).first
 puts "#{baller_name.first_name} #{baller_name.last_name} spent the most money.\n\n"
-# There has to be a better way to do this
+## There has to be a better way to do this
 
 # What were the top 3 highest grossing categories?
 
