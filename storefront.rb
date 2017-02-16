@@ -44,13 +44,11 @@ end
 
 # 5 Correct Virginie Mitchell's address to "New York, NY, 10108".
 
-new_addresses = User.find_by(first_name: "Virginie", last_name: "Mitchell").addresses.find_by(state: "NY")
+new_address = User.find_by(first_name: "Virginie", last_name: "Mitchell").addresses.find_by(state: "NY")
 
-new_addresses.update(city: "New York", state: "NY", zip: 10108)
+new_address.update(city: "New York", state: "NY", zip: 10108)
 
-new_addresses.each do |address|
-  puts "#{address.street} #{address.city}, #{address.state} #{address.zip}"
-end
+puts "#{new_address.street} #{new_address.city}, #{new_address.state} #{new_address.zip}"
 
 # 6 How much would it cost to buy one of each tool?
 
@@ -70,8 +68,38 @@ puts books_revenue
 
 # 1 Simulate buying an item by inserting a User from command line input (ask the user for their information) and an Order for that User (have them pick what they'd like to order and other needed order information).
 
+# prompt = TTY::Prompt.new
+
+#split on space
+
+# if prompt.yes?("Would you like to add an order?")
+#   name = prompt.ask("What's your first and last name?")
+#   email = prompt.ask("What's your email?")
+#   #will need item name (and convert to item id), and quantity
+#   order = prompt.select("What would you like to order?", %w())
+# pick a number between 1-100 to see what your order will be!
+
 # 2 What item was ordered most often? Grossed the most money?
+
+most_ordered_item = Order.joins(:item).select("item_id, sum(quantity) AS total").group(:item_id).order("total desc").first.item
+
+puts "#{most_ordered_item.title}"
+
+highest_grossing = Order.joins(:item).select("item_id, sum(items.price * orders.quantity) AS total").group(:item_id).order("total desc").first.item
+
+puts "#{highest_grossing.title}"
 
 # 3 What user spent the most?
 
+user = User.joins(orders: :item).select("user_id, first_name, last_name, sum(items.price * orders.quantity) AS total").group(:user_id).order("total desc").first
+
+puts "#{user.first_name} #{user.last_name}"
+
+
 # 4 What were the top 3 highest grossing categories?
+
+top_three = Item.joins(:orders).select("category, sum(items.price * orders.quantity) AS total").group(:category).order("total desc").first(3)
+
+top_three.each do |item|
+  puts "#{item.category}"
+end
