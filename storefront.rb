@@ -110,6 +110,7 @@ end
 #Can i put a condition where if the email doesn't exist return something?
 #This only works when I'm returning it as an array/hash
 #I could add a Y/N confirmation loop to check ordered item
+
 if prompt.yes?("Would you like to leave a review?")
   find_email = prompt.ask("What is your email used when buying an item?")
   find_id = User.where("email = ?", find_email).first.id
@@ -121,5 +122,4 @@ if prompt.yes?("Would you like to leave a review?")
   puts "Your review is greatly appreciated!"
 else
   puts "Have a great day!"
-
 end
