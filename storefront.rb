@@ -62,24 +62,6 @@ puts "$#{spent} was spent on books."
 
 ######### Adventure Mode
 
-# Simulate buying an item by inserting a User from command line input (ask the user for their information) and an Order for that User (have them pick what they'd like to order and other needed order information).
-prompt = TTY::Prompt.new
-
-if prompt.yes?("Would you like to buy an item?")
-  first_name = prompt.ask("What is your first name?")
-  last_name = prompt.ask("What is your last name?")
-  email = prompt.ask("What is your email?")
-  user = User.create(first_name: first_name, last_name: last_name, email: email)
-  puts "We added #{user.first_name} #{user.last_name} to our database! Thank you!"
-  all_items = Item.order(:price).group_by{|i| i[:title]}
-  item = prompt.select("What item would you like to buy?", all_items).first
-  amount = prompt.ask("How many would you like to buy?")
-  buy = Order.create(user: user, item: item, quantity: amount)
-  puts "You have bought #{buy.quantity} of #{item.title}'s"
-else
-  puts "Have a nice day!"
-end
-
 # What item was ordered most often? Grossed the most money?
  most_order = Order.joins(:item).order("sum_orders_quantity").reverse_order.group(:title).sum("orders.quantity").first.shift
  puts "#{most_order} was ordered the most."
@@ -99,5 +81,26 @@ puts "#{baller_name.first_name} #{baller_name.last_name} spent the most money.\n
 gc = Item.joins(:orders).order("sum_orders_quantity_all_items_price").reverse_order.group("items.category").sum("orders.quantity * items.price").first(3)
 puts "The top 3 grossing categories were:\n #{gc[0].first} with $#{gc[0].last},\n #{gc[1].first} with $#{gc[1].last},\n and #{gc[2].first} with $#{gc[2].last}."
 ## Note: Research how to do adventure mode better
+
+# Simulate buying an item by inserting a User from command line input (ask the user for their information) and an Order for that User (have them pick what they'd like to order and other needed order information).
+prompt = TTY::Prompt.new
+
+if prompt.yes?("Would you like to buy an item?")
+  first_name = prompt.ask("What is your first name?")
+  last_name = prompt.ask("What is your last name?")
+  email = prompt.ask("What is your email?")
+  user = User.create(first_name: first_name, last_name: last_name, email: email)
+  puts "We added #{user.first_name} #{user.last_name} to our database! Thank you!"
+  all_items = Item.order(:price).group_by{|i| i[:title]}
+  item = prompt.select("What item would you like to buy?", all_items).first
+  amount = prompt.ask("How many would you like to buy?")
+  buy = Order.create(user: user, item: item, quantity: amount)
+  puts "You have bought #{buy.quantity} of #{item.title}'s"
+else
+  puts "Have a nice day!"
+end
+
+#Putting this out of order so when the script is run it outputs all of the information and then does the prompts
+
 
 ###### Epic Mode
