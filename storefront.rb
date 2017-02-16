@@ -26,7 +26,7 @@ Item.order(price: :desc).first(5).each do |item|
 end
 
 # 3 What's the cheapest book? (Does that change for "category is exactly 'book'" versus "category contains 'book'"?)
-
+#
 item = Item.where(category: "Books").order(price: :asc).first
 puts item.title
 
@@ -68,32 +68,39 @@ puts books_revenue
 
 # 1 Simulate buying an item by inserting a User from command line input (ask the user for their information) and an Order for that User (have them pick what they'd like to order and other needed order information).
 
-# prompt = TTY::Prompt.new
+prompt = TTY::Prompt.new
 
-#split on space
+if prompt.yes?("Would you like to add an order?")
+  name = prompt.ask("What's your first and last name?")
+  email = prompt.ask("What's your email?")
+  item = prompt.select("What would you like to order?", ['Ergonomic Granite Chair', 'Small Cotton Hat', 'Incredible Granite Computer'])
+  quantity = prompt.ask("How many would you like to order?")
 
-# if prompt.yes?("Would you like to add an order?")
-#   name = prompt.ask("What's your first and last name?")
-#   email = prompt.ask("What's your email?")
-#   #will need item name (and convert to item id), and quantity
-#   order = prompt.select("What would you like to order?", %w())
-# pick a number between 1-100 to see what your order will be!
+  first_name, last_name = name.split(" ").map(&:capitalize)
+  new_user = User.create(first_name: first_name, last_name: last_name, email: email)
+
+  user_id = new_user.id
+  item_id = Item.find_by(title: item).id
+  new_order = Order.create(user_id: user_id, item_id: item_id, quantity: quantity)
+else
+  "Goodbye"
+end
 
 # 2 What item was ordered most often? Grossed the most money?
 
-most_ordered_item = Order.joins(:item).select("item_id, sum(quantity) AS total").group(:item_id).order("total desc").first.item
+order = Order.joins(:item).select("item_id, sum(quantity) AS total").group(:item_id).order("total desc").first
 
-puts "#{most_ordered_item.title}"
+puts "#{order.item.title} was ordered #{order.total} times."
 
-highest_grossing = Order.joins(:item).select("item_id, sum(items.price * orders.quantity) AS total").group(:item_id).order("total desc").first.item
+highest_grossing = Order.joins(:item).select("item_id, sum(items.price * orders.quantity) AS total").group(:item_id).order("total desc").first
 
-puts "#{highest_grossing.title}"
+puts "#{highest_grossing.item.title} grossed: $#{highest_grossing.total}."
 
 # 3 What user spent the most?
 
 user = User.joins(orders: :item).select("user_id, first_name, last_name, sum(items.price * orders.quantity) AS total").group(:user_id).order("total desc").first
 
-puts "#{user.first_name} #{user.last_name}"
+puts "#{user.first_name} #{user.last_name} spent $#{user.total}."
 
 
 # 4 What were the top 3 highest grossing categories?
@@ -101,5 +108,5 @@ puts "#{user.first_name} #{user.last_name}"
 top_three = Item.joins(:orders).select("category, sum(items.price * orders.quantity) AS total").group(:category).order("total desc").first(3)
 
 top_three.each do |item|
-  puts "#{item.category}"
+  puts "#{item.category} grossed $#{item.total}"
 end
