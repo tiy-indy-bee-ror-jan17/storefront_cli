@@ -81,7 +81,7 @@ end
 
 puts answers
 # Simulate buying an item by inserting a User from command line input (ask the user for their information) and an Order for that User (have them pick what they'd like to order and other needed order information).
-if prompt.yes?("would you like buy something?")
+if prompt.yes?("would you like to buy something?")
   user_firstname = prompt.ask("Enter your first name: ")
   user_lastname = prompt.ask("Enter your first name: ")
   user_email = prompt.ask("Enter your email: ")
@@ -95,3 +95,20 @@ if prompt.yes?("would you like buy something?")
   Order.create(user_id: newuser.id, item_id: item_ordered.id, quantity: quantity_ordered)
   puts "Thank you, order complete!"
 end
+
+
+#interface
+
+if prompt.yes?("Would you like to leave a review?")
+
+  review_email = prompt.ask("Enter your email: ")
+  user = User.find_by("email = ?", review_email)
+  user_orders = user.orders.group_by{|order| order.item.title}
+  item_to_review = prompt.select("choose an item you have ordered to review:", user_orders).first.item
+  review = prompt.ask("Please write your review for #{item_to_review.title}: ")
+  stars = prompt.select("How many stars?", [1,2,3,4,5])
+  binding.pry
+  #Review.create(item_id: item_to_review.id, user_id: user.id, stars: stars, review: review)
+end
+
+"audrey@hartmann.org"
