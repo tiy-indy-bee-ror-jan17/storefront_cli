@@ -67,17 +67,19 @@ puts "#{books_total} was spent on books."
 #
 # # Simulate buying an item by inserting a User from command line input (ask the user for their information) and an Order for that User (have them pick what they'd like to order and other needed order information).
 prompt = TTY::Prompt.new
-#
-# first_name = prompt.ask("Please enter your first name.")
-# last_name = prompt.ask("Please enter your last name.")
-# email = prompt.ask("Please enter your email.")
-#
-# User.create(first_name: first_name, last_name: last_name, email: email)
-# puts "User #{first_name} #{last_name} added."
-#
-# title = prompt.ask("What would you like to order?")
-# quantity = prompt.ask("How many would you like?")
 
+first_name = prompt.ask("Please enter your first name.")
+last_name = prompt.ask("Please enter your last name.")
+email = prompt.ask("Please enter your email.")
+
+new_user = User.create(first_name: first_name, last_name: last_name, email: email)
+puts "User #{first_name} #{last_name} added."
+
+item_id = prompt.ask("Please enter an item ID (1-100).")
+quantity = prompt.ask("How many would you like?")
+
+new_order = Order.create(user_id: new_user.id, item_id: item_id, quantity: quantity)
+puts "You ordered #{new_order.quantity} of #{new_order.item.title}"
 
 
 # What item was ordered most often? Grossed the most money?
@@ -96,10 +98,17 @@ popular = Item.find_by(id: 65)
 puts "#{popular.title} grossed the most money."
 
 # What user spent the most?
+big_spender = Hash.new(0)
+Order.all.each do |order|
+  big_spender[order.user_id] += (order.quantity * order.item.price)
+end
 
+big_spender.sort_by { |user_id, value| value }.reverse.first
+big = User.find_by(id: 19)    # Crap, this made me realize that my homework from yesterday was wrong. I see why.
+puts "#{big.first_name} #{big.last_name} spent the most."
 
-# What were the top 3 highest grossing categories?
-highest_gross = Order.joins(:item).group(:category).order('sum_quantity_all_price desc').limit(3).sum('quantity * price')
+# What were the top 3 highest grossing categories?      # Trying a join
+highest_gross = Order.joins(:item).group(:category).order('sum_quantity_all_price desc').limit(3).sum('quantity * price')  # .order argument found in error message
 puts "Highest grossing categories were #{highest_gross.map { |category, value| category }.join(' and ')}"
 
 
