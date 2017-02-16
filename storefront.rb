@@ -66,25 +66,41 @@ ActiveRecord::Base.establish_connection(
     puts Order.sum("quantity")
     # 8 How much was spent on books?
     params = "book"
-    puts Order.joins("INNER JOIN items ON orders.item_id = items.id").where("items.category LIKE :params", {:params => "%#{params}%"}).sum("items.price * orders.quantity")
+    puts Order.joins(:item).where("items.category LIKE :params", {:params => "%#{params}%"}).sum("items.price * orders.quantity")
 
   # Adventure
     # 1 Simulate buying an item by inserting a User from command line input (ask the user for their information) and an Order for that User (have them pick what they'd like to order and other needed order information).
-    # prompt = TTY::Prompt.new
-    #
-    #
-    # prompt
-    #
-    #
-    # user = User.create(first_name: fname, last_name: lname, email: email)
-    # order = Order.create(user_id: user.id, item_id: item_id, quantity: quantity)
-    # puts
+    prompt = TTY::Prompt.new
+
+    items = Item.order(:price)
+    item_titles = []
+    item_id = nil
+    items.each do |item|
+      item_titles << item.title
+    end
+    fname = prompt.ask("What is your first name?")
+    lname = prompt.ask("What is your last name?")
+    email = prompt.ask("What is your email?")
+    item_response = prompt.select("What would you like to order?", item_titles).downcase
+    items.each do |item|
+      if item.title.downcase == item_response
+        item_id = item.id
+      end
+    end
+    quantity = prompt.ask("How many would you like?")
+    user = User.create(first_name: fname, last_name: lname, email: email)
+    order = Order.create(user_id: user.id, item_id: item_id, quantity: quantity)
+    puts order.inspect
 
     # 2
       # 1 What item was ordered most often?
+      puts Order.joins(:item).order("sum_orders_quantity").reverse_order.group(:title).sum("orders.quantity").take(1)
 
       # 2 Grossed the most money?
+      # grossed = Order.select("item.title, item.price * order.quantity AS total").joins(:item).group(:title).order("sum_items_price_all_orders_quantity").reverse_order.sum("items.price * orders.quantity")
+      puts Order.joins(:item).order("sum_items_price_all_orders_quantity").reverse_order.group(:title).sum("items.price * orders.quantity").take(1)
 
     # 3 What user spent the most?
-
+    puts User.joins("INNER JOIN orders ON users.id = orders.user_id INNER JOIN items ON orders.item_id = items.id").order("sum_items_price_all_orders_quantity").reverse_order.group("users.first_name || ' ' || users.last_name").sum("items.price * orders.quantity").take(1)
     # 4 What were the top 3 highest grossing categories?
+    puts Order.joins(:item).order("sum_items_price_all_orders_quantity").reverse_order.group(:category).sum("items.price * orders.quantity").take(3)
