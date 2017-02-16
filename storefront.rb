@@ -8,6 +8,7 @@ require_relative 'models/user/'
 require_relative 'models/address/'
 require_relative 'models/item/'
 require_relative 'models/order/'
+require_relative 'models/review/'
 
 # ActiveRecord::Base.logger = Logger.new(STDOUT)
 
@@ -104,3 +105,10 @@ end
 
 
 ###### Epic Mode
+
+# unfinished epic mode prompt
+# if prompt.yes?("Would you like to leave a review?")
+#   find_email = prompt.ask("What is your email used when buying an item?")
+#   User.joins(:orders).where("email = ?", find_email)
+#
+# end
