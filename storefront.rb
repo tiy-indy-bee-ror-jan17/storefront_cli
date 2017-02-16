@@ -17,13 +17,14 @@ ActiveRecord::Base.establish_connection(
 )
 
 ###### Explorer Mode
+puts"\n"
 # How many users are there?
-puts "There are #{User.count} users.\n\n"
+puts "There are #{User.count} users."
 
 # What are the 5 most expensive items?
 puts "The five most expensive items are:"
 Item.order(price: :desc).limit(5).each do |item|
-  puts "#{item.title} costs $#{item.price}"
+  puts " #{item.title} costs $#{item.price}"
 end
 puts "\n"
 
@@ -59,7 +60,7 @@ puts "\n"
 spent = Item.joins(:orders).where("category LIKE '%books%'").sum("price*quantity")
 puts "$#{spent} was spent on books."
 
-######### Adventurer Mode
+######### Adventure Mode
 
 # Simulate buying an item by inserting a User from command line input (ask the user for their information) and an Order for that User (have them pick what they'd like to order and other needed order information).
 prompt = TTY::Prompt.new
@@ -80,11 +81,23 @@ else
 end
 
 # What item was ordered most often? Grossed the most money?
- most_order = Order.joins(:item).order("sum_orders_quantity").reverse_order.group(:title).sum("orders.quantity").first
+ most_order = Order.joins(:item).order("sum_orders_quantity").reverse_order.group(:title).sum("orders.quantity").first.shift
  puts "#{most_order} was ordered the most."
 
- gross = Order.joins(:item).order("sum_orders_quantity_all_items_price").reverse_order.group(:title).sum("orders.quantity * items.price").first
+ gross = Order.joins(:item).order("sum_orders_quantity_all_items_price").reverse_order.group(:title).sum("orders.quantity * items.price").first.shift
  puts "#{gross} grossed the most money."
- 
+
 # What user spent the most?
+
+baller = Order.joins(:user, :item).order("sum_orders_quantity_all_items_price").reverse_order.group("users.id").sum("orders.quantity * items.price").first
+baller_name = User.where("id = ?", baller.first).first
+puts "#{baller_name.first_name} #{baller_name.last_name} spent the most money.\n\n"
+# There has to be a better way to do this
+
 # What were the top 3 highest grossing categories?
+
+gc = Item.joins(:orders).order("sum_orders_quantity_all_items_price").reverse_order.group("items.category").sum("orders.quantity * items.price").first(3)
+puts "The top 3 grossing categories were:\n #{gc[0].first} with $#{gc[0].last},\n #{gc[1].first} with $#{gc[1].last},\n and #{gc[2].first} with $#{gc[2].last}."
+## Note: Research how to do adventure mode better
+
+###### Epic Mode
